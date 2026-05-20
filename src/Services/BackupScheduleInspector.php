@@ -139,26 +139,29 @@ class BackupScheduleInspector
      * Routes/console.php (Laravel 11+) and App\Console\Kernel::schedule()
      * (legacy) are normally only invoked by the console kernel. Pull them
      * in from a web request so the page can show what's scheduled.
+     *
+     * Bootstrapping the console kernel is the canonical path: it honors
+     * whatever commands path the app registered via
+     * withRouting(commands: ...), including non-default locations like
+     * routes/commands/console.php.
      */
     private function ensureScheduleLoaded(): void
     {
+        try {
+            $kernel = app('Illuminate\\Contracts\\Console\\Kernel');
+            if (method_exists($kernel, 'bootstrap')) {
+                $kernel->bootstrap();
+            }
+        } catch (Throwable) {
+            // best-effort: ignore failures from the host app
+        }
+
         $path = base_path('routes/console.php');
         if (is_file($path)) {
             try {
                 require_once $path;
             } catch (Throwable) {
-                // best-effort: ignore parse/runtime errors from the host app
-            }
-        }
-
-        if (class_exists('App\\Console\\Kernel')) {
-            try {
-                $kernel = app('Illuminate\\Contracts\\Console\\Kernel');
-                if (method_exists($kernel, 'bootstrap')) {
-                    $kernel->bootstrap();
-                }
-            } catch (Throwable) {
-                // ignore
+                // ignore parse/runtime errors from the host app
             }
         }
     }
