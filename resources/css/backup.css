@@ -118,11 +118,45 @@
   }
 
   .ls-schedule__human {
-    @apply text-slate-800;
+    @apply text-xs text-slate-500;
   }
 
   .ls-schedule__cron {
     @apply font-mono text-xs text-slate-400;
+  }
+
+  /* Relative time with instant UTC tooltip --------------------------- */
+
+  .ls-time {
+    position: relative;
+    cursor: help;
+    text-decoration: underline dotted;
+    text-decoration-color: theme(colors.slate.300);
+    text-underline-offset: 3px;
+  }
+
+  .ls-time::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: theme(colors.slate.900);
+    color: white;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 20;
+  }
+
+  .ls-time:hover::after,
+  .ls-time:focus-visible::after {
+    opacity: 1;
   }
 
   /* Notification channel rows (inline channel → target flow) --------- */

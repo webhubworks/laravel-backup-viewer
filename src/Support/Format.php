@@ -4,6 +4,7 @@ namespace Webhub\BackupViewer\Support;
 
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\HtmlString;
 
 class Format
 {
@@ -26,11 +27,25 @@ class Format
         return $bytes.' B';
     }
 
-    public static function relativeTime(int $timestamp): string
+    /**
+     * Render a relative-time label wrapped in a <time> element whose
+     * tooltip surfaces the exact UTC timestamp. Returning HtmlString lets
+     * existing call sites stay on Blade's {{ }} syntax without double
+     * escaping the markup.
+     */
+    public static function relativeTime(int $timestamp): HtmlString
     {
         /** @var CarbonInterface $date */
         $date = Date::createFromTimestamp($timestamp);
 
-        return $date->diffForHumans();
+        $human = $date->diffForHumans();
+        $utc = $date->copy()->utc()->format('Y-m-d H:i:s').' UTC';
+
+        return new HtmlString(sprintf(
+            '<time class="ls-time" datetime="%s" data-tooltip="%s">%s</time>',
+            e($date->toIso8601String()),
+            e($utc),
+            e($human)
+        ));
     }
 }
