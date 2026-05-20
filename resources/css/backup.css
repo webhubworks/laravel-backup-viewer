@@ -1,0 +1,503 @@
+@import "tailwindcss";
+
+@source "../views/**/*.blade.php";
+
+/*
+ * All styles are scoped under .ls-backup so we never leak into a host app
+ * that mounts this view inside its own layout.
+ */
+@layer base {
+  .ls-backup {
+    @apply text-slate-700;
+    color-scheme: light;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .ls-backup * {
+    box-sizing: border-box;
+  }
+}
+
+@layer components {
+  .ls-page {
+    @apply min-h-screen bg-slate-50 px-6 py-8;
+  }
+
+  .ls-page__footer {
+    @apply mx-auto mt-16 max-w-2xl px-4 pb-4 text-center text-xs leading-relaxed text-slate-400;
+  }
+
+  .ls-page__footer p + p {
+    @apply mt-2;
+  }
+
+  .ls-page__footer a {
+    @apply text-slate-500 underline decoration-slate-300 underline-offset-2 hover:text-slate-700 hover:decoration-slate-500;
+  }
+
+  .ls-page__footer code {
+    @apply rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[0.7rem] text-slate-500;
+  }
+
+  .ls-grid {
+    @apply mx-auto grid max-w-6xl grid-cols-1 gap-4 lg:grid-cols-2;
+  }
+
+  /*
+   * Tag a card with .ls-card--full to make it span the whole grid row on
+   * wide screens (e.g. the file table — narrow side-by-side columns would
+   * be too cramped for filenames + downloads).
+   */
+  .ls-card--full {
+    @apply lg:col-span-2;
+  }
+
+  /* Card -------------------------------------------------------------- */
+
+  .ls-card {
+    @apply rounded-xl border border-slate-200 bg-white shadow-sm;
+  }
+
+  .ls-card__header {
+    @apply flex items-center justify-between border-b border-slate-100 px-5 py-4;
+  }
+
+  .ls-card__title {
+    @apply text-base font-semibold text-slate-900;
+  }
+
+  .ls-card__body {
+    @apply px-5 py-4;
+  }
+
+  .ls-card__empty {
+    @apply rounded-md border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-500;
+  }
+
+  /* Tabs -------------------------------------------------------------- */
+
+  .ls-tabs {
+    @apply mb-4 flex items-end gap-1 border-b border-slate-200;
+  }
+
+  .ls-tabs__tab {
+    @apply -mb-px cursor-pointer rounded-t-md border border-transparent px-3 py-2 text-sm font-medium text-slate-500 transition hover:text-slate-700;
+  }
+
+  .ls-tabs__tab[aria-selected="true"] {
+    @apply border-slate-200 border-b-white bg-white text-slate-900;
+  }
+
+  .ls-tab-pane {
+    @apply pt-0;
+  }
+
+  .ls-tab-pane[hidden] {
+    display: none;
+  }
+
+  /* Schedule rows ---------------------------------------------------- */
+
+  .ls-schedule {
+    @apply flex flex-col gap-1;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .ls-schedule__row {
+    @apply flex flex-wrap items-baseline gap-x-2 text-sm;
+  }
+
+  .ls-schedule__cmd {
+    @apply rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs text-slate-700;
+  }
+
+  .ls-schedule__sep {
+    @apply select-none text-slate-300;
+  }
+
+  .ls-schedule__human {
+    @apply text-slate-800;
+  }
+
+  .ls-schedule__cron {
+    @apply font-mono text-xs text-slate-400;
+  }
+
+  /* Notification channel rows (inline channel → target flow) --------- */
+
+  .ls-channels {
+    @apply flex flex-col gap-1;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .ls-channels__row {
+    @apply flex items-center gap-2 text-sm;
+  }
+
+  .ls-channel {
+    @apply inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700;
+  }
+
+  .ls-channel__arrow {
+    @apply select-none text-slate-300;
+  }
+
+  .ls-channel__target {
+    @apply text-slate-800 break-words;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 0.8125rem;
+  }
+
+  .ls-channel__target--fallback {
+    @apply italic text-slate-400;
+    font-family: inherit;
+  }
+
+  .ls-channel__target--missing {
+    @apply italic text-rose-600;
+    font-family: inherit;
+  }
+
+  /* Per-target storage location -------------------------------------- */
+
+  .ls-target-location {
+    @apply mb-3 flex flex-wrap items-center gap-x-2 text-xs text-slate-500;
+  }
+
+  .ls-target-location__driver {
+    @apply rounded bg-slate-100 px-1.5 py-0.5 font-mono uppercase tracking-wide text-slate-600;
+  }
+
+  .ls-target-location__path {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    @apply break-all;
+  }
+
+  /* Table ------------------------------------------------------------- */
+
+  .ls-table-wrap {
+    @apply max-h-[28rem] overflow-auto rounded-md border border-slate-200;
+  }
+
+  .ls-table {
+    @apply w-full border-collapse text-sm;
+  }
+
+  .ls-table thead th {
+    @apply sticky top-0 z-10 border-b border-slate-200 bg-slate-50 px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500;
+  }
+
+  .ls-table tbody td {
+    @apply border-b border-slate-100 px-3 py-2 align-middle;
+  }
+
+  .ls-table tbody tr {
+    @apply transition-colors;
+  }
+
+  .ls-table tbody tr:hover {
+    @apply bg-slate-50;
+  }
+
+  .ls-table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .ls-mono {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 0.8125rem;
+  }
+
+  /* Button ------------------------------------------------------------ */
+
+  .ls-btn {
+    @apply inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1;
+  }
+
+  .ls-btn--disabled {
+    @apply cursor-not-allowed text-slate-400 hover:bg-white hover:text-slate-400;
+  }
+
+  /* Lock icons -------------------------------------------------------- */
+
+  .ls-lock {
+    @apply ml-1 inline-flex h-4 w-4 items-center justify-center align-middle text-slate-400;
+  }
+
+  .ls-lock--open {
+    @apply text-slate-400;
+  }
+
+  /* Disk-usage bar ---------------------------------------------------- */
+
+  .ls-disk {
+    @apply mt-4;
+  }
+
+  .ls-disk__bar {
+    @apply relative h-2.5 w-full overflow-hidden rounded-full bg-slate-200;
+  }
+
+  .ls-disk__used {
+    @apply absolute inset-y-0 left-0 bg-slate-400;
+  }
+
+  .ls-disk__backups {
+    @apply absolute inset-y-0 left-0 bg-emerald-500;
+  }
+
+  .ls-disk__threshold {
+    @apply absolute inset-y-[-2px] w-px bg-rose-500;
+  }
+
+  .ls-disk__legend {
+    @apply mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600;
+  }
+
+  .ls-disk__legend-item--total {
+    @apply text-slate-400;
+  }
+
+  .ls-disk__swatch {
+    @apply mr-1 inline-block h-2 w-2 rounded-sm align-middle;
+  }
+
+  .ls-disk__swatch--backups {
+    @apply bg-emerald-500;
+  }
+
+  .ls-disk--low .ls-disk__used {
+    @apply bg-rose-300;
+  }
+
+  .ls-disk__warning {
+    @apply mt-2 text-xs font-medium text-rose-600;
+  }
+
+  /* Legend ------------------------------------------------------------ */
+
+  .ls-legend {
+    @apply mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500;
+  }
+
+  .ls-legend p {
+    @apply inline-flex items-center;
+  }
+
+  .ls-legend__note {
+    @apply italic;
+  }
+
+  /* Missing-package notice ------------------------------------------- */
+
+  .ls-notice {
+    @apply mx-auto max-w-3xl rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900;
+  }
+
+  .ls-notice__title {
+    @apply mb-1 font-semibold;
+  }
+
+  .ls-notice code {
+    @apply rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs;
+  }
+
+  /* Inline notice (inside a card) ------------------------------------ */
+
+  .ls-inline-notice {
+    @apply mb-4 rounded-md border px-4 py-3 text-sm;
+  }
+
+  .ls-inline-notice--info {
+    @apply border-slate-200 bg-slate-50 text-slate-700;
+  }
+
+  .ls-inline-notice--warning {
+    @apply border-amber-200 bg-amber-50 text-amber-900;
+  }
+
+  .ls-inline-notice__title {
+    @apply mb-0.5 font-semibold;
+  }
+
+  .ls-inline-notice code {
+    @apply rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs text-slate-700;
+  }
+
+  .ls-inline-notice--warning code {
+    @apply bg-amber-100 text-amber-900;
+  }
+
+  /* Definition-list rows --------------------------------------------- */
+
+  .ls-rows {
+    @apply grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 text-sm;
+  }
+
+  .ls-rows dt {
+    @apply font-medium text-slate-600;
+  }
+
+  .ls-rows dd {
+    @apply text-slate-900;
+  }
+
+  .ls-rows code {
+    @apply rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs text-slate-700;
+  }
+
+  .ls-muted {
+    @apply text-slate-500;
+  }
+
+  .ls-error-line {
+    @apply text-rose-700;
+  }
+
+  /* Badges ------------------------------------------------------------ */
+
+  .ls-badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium;
+  }
+
+  .ls-badge::before {
+    content: "";
+    @apply inline-block h-1.5 w-1.5 rounded-full;
+  }
+
+  .ls-badge--ok {
+    @apply bg-emerald-50 text-emerald-700;
+  }
+  .ls-badge--ok::before { @apply bg-emerald-500; }
+
+  .ls-badge--failed,
+  .ls-badge--warning {
+    @apply bg-rose-50 text-rose-700;
+  }
+  .ls-badge--failed::before,
+  .ls-badge--warning::before { @apply bg-rose-500; }
+
+  .ls-badge--muted {
+    @apply bg-slate-100 text-slate-600;
+  }
+  .ls-badge--muted::before { @apply bg-slate-400; }
+
+  /* Status line + link button ---------------------------------------- */
+
+  .ls-status-line,
+  .ls-run-line {
+    @apply inline-flex flex-wrap items-center gap-2;
+  }
+
+  .ls-link-btn {
+    @apply cursor-pointer text-xs font-medium text-slate-500 underline decoration-slate-300 underline-offset-2 hover:text-slate-900 hover:decoration-slate-500;
+    background: none;
+    border: 0;
+    padding: 0;
+  }
+
+  /* Check list (used in both health + per-target) ------------------- */
+
+  .ls-check-list {
+    @apply mt-2 divide-y divide-slate-100 rounded-md border border-slate-200;
+    list-style: none;
+    padding: 0;
+    margin-top: 0.5rem;
+  }
+
+  .ls-check-list--flush {
+    @apply border-0 divide-y-0;
+  }
+
+  .ls-check-list__item {
+    @apply grid grid-cols-[1.25rem_1fr_auto] items-center gap-x-3 px-3 py-2 text-sm;
+  }
+
+  .ls-check-icon {
+    @apply inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold;
+  }
+
+  .ls-check-icon--ok {
+    @apply bg-emerald-100 text-emerald-700;
+  }
+
+  .ls-check-icon--failure {
+    @apply bg-rose-100 text-rose-700;
+  }
+
+  .ls-check-icon--skipped {
+    @apply bg-slate-100 text-slate-500;
+  }
+
+  .ls-check-list__label {
+    @apply text-slate-800;
+  }
+
+  .ls-check-list__scope {
+    @apply mr-2 rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[0.7rem] text-slate-600;
+  }
+
+  .ls-check-list__detail {
+    @apply text-xs text-slate-500;
+  }
+
+  /* Per-target collapsible groups ------------------------------------ */
+
+  .ls-checks {
+    @apply space-y-2;
+  }
+
+  .ls-check-group {
+    @apply rounded-md border border-slate-200;
+  }
+
+  .ls-check-group__summary {
+    @apply grid cursor-pointer grid-cols-[max-content_max-content_1fr_1rem] items-center gap-x-3 px-3 py-2 text-sm;
+    list-style: none;
+  }
+
+  /* Same visual layout as a check-group summary but rendered as a plain
+   * div (used when there's only one destination — no collapsible needed). */
+  .ls-target-header {
+    @apply grid grid-cols-[max-content_max-content_1fr] items-center gap-x-3 text-sm;
+  }
+
+  .ls-check-group__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .ls-check-group__target {
+    @apply font-medium text-slate-900;
+  }
+
+  .ls-check-group__count {
+    @apply inline-flex items-center gap-2 text-xs text-slate-500;
+  }
+
+  .ls-check-group__chevron {
+    @apply justify-self-end transition-transform;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid var(--color-slate-400);
+  }
+
+  .ls-check-group[open] .ls-check-group__chevron {
+    transform: rotate(180deg);
+  }
+
+  .ls-check-group__meta {
+    @apply flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-600;
+  }
+
+  .ls-check-group .ls-check-list {
+    @apply border-0;
+    border-radius: 0;
+  }
+
+}
