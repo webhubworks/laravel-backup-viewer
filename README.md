@@ -18,6 +18,12 @@ Event-driven: the page reads from a small JSON state file populated by listeners
 composer require webhubworks/laravel-backup-viewer
 ```
 
+Optionally publish the config (see [Configuration](#configuration) for what's in it):
+
+```bash
+php artisan vendor:publish --tag=backup-viewer-config
+```
+
 The package depends on `spatie/laravel-backup` to actually do anything useful — install it too if you haven't:
 
 ```bash
