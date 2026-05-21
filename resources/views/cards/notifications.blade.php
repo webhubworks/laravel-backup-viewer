@@ -1,22 +1,22 @@
 <div class="ls-card ls-card--full">
     <div class="ls-card__header">
-        <h2 class="ls-card__title">Notifications</h2>
+        <h2 class="ls-card__title">{{ __('backup-viewer::messages.notifications.title') }}</h2>
     </div>
 
     <div class="ls-card__body">
         @if (empty($events))
             @include('backup-viewer::_partials.notice', [
                 'tone' => 'info',
-                'title' => 'No notifications are configured',
-                'body' => 'Every entry in <code>backup.notifications.notifications</code> is either missing or has an empty channels array.',
+                'title' => __('backup-viewer::messages.notifications.none_title'),
+                'body' => __('backup-viewer::messages.notifications.none_body_html'),
             ])
         @else
             <div class="ls-table-wrap">
                 <table class="ls-table">
                     <thead>
                         <tr>
-                            <th>Event</th>
-                            <th>Channels</th>
+                            <th>{{ __('backup-viewer::messages.notifications.col_event') }}</th>
+                            <th>{{ __('backup-viewer::messages.notifications.col_channels') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -36,9 +36,9 @@
                                                     @if ($channel['status'] === 'configured')
                                                         <span class="ls-channel__target">{{ $channel['target'] }}</span>
                                                     @elseif ($channel['status'] === 'fallback')
-                                                        <span class="ls-channel__target ls-channel__target--fallback">(default)</span>
+                                                        <span class="ls-channel__target ls-channel__target--fallback">{{ __('backup-viewer::messages.notifications.default_channel') }}</span>
                                                     @elseif ($channel['status'] === 'missing')
-                                                        <span class="ls-channel__target ls-channel__target--missing">(no recipient set)</span>
+                                                        <span class="ls-channel__target ls-channel__target--missing">{{ __('backup-viewer::messages.notifications.missing_recipient') }}</span>
                                                     @endif
                                                 @endif
                                             </li>

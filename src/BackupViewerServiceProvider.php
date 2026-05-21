@@ -17,7 +17,8 @@ class BackupViewerServiceProvider extends PackageServiceProvider
         $package
             ->name('backup-viewer')
             ->hasConfigFile('backup-viewer')
-            ->hasViews('backup-viewer');
+            ->hasViews('backup-viewer')
+            ->hasTranslations();
     }
 
     public function packageBooted(): void

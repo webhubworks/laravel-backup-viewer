@@ -8,21 +8,21 @@
 
 <div class="ls-card">
     <div class="ls-card__header">
-        <h2 class="ls-card__title">Per-target checks</h2>
+        <h2 class="ls-card__title">{{ __('backup-viewer::messages.per_target.title') }}</h2>
     </div>
 
     <div class="ls-card__body">
         @if (! $monitorEnabled)
             @include('backup-viewer::_partials.notice', [
                 'tone' => 'info',
-                'title' => 'Monitoring is not configured',
-                'body' => 'Add a <code>monitor_backups</code> entry in <code>config/backup.php</code> with one or more disks and health checks to populate this card.',
+                'title' => __('backup-viewer::messages.per_target.monitoring_not_configured_title'),
+                'body' => __('backup-viewer::messages.per_target.monitoring_not_configured_body_html'),
             ])
         @elseif (! $hasAnyMonitorRecord)
             @include('backup-viewer::_partials.notice', [
                 'tone' => 'info',
-                'title' => 'No data yet',
-                'body' => 'Run <code>php artisan backup:monitor</code> (or schedule it) to populate this card. The page will show the result on the next request.',
+                'title' => __('backup-viewer::messages.per_target.no_data_title'),
+                'body' => __('backup-viewer::messages.per_target.no_data_body_html'),
             ])
         @elseif (count($destinations) === 1)
             @include('backup-viewer::_partials.target-section', ['d' => $destinations[0], 'flat' => true])

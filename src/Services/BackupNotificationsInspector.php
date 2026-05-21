@@ -108,12 +108,23 @@ class BackupNotificationsInspector
 
     /**
      * "Spatie\Backup\Notifications\Notifications\BackupHasFailedNotification"
-     *   → "Backup has failed"
+     *   → translated "Backup has failed" / "Backup fehlgeschlagen" / …
+     *
+     * Falls back to a snake-cased label for unknown classes so custom
+     * notifications are still readable.
      */
     private function humanLabel(string $class): string
     {
         $base = class_basename($class);
         $base = Str::endsWith($base, 'Notification') ? substr($base, 0, -strlen('Notification')) : $base;
+
+        $key = Str::snake($base);
+        $translationKey = 'backup-viewer::messages.events.'.$key;
+        $translated = __($translationKey);
+
+        if ($translated !== $translationKey) {
+            return (string) $translated;
+        }
 
         return Str::ucfirst(strtolower(Str::snake($base, ' ')));
     }

@@ -15,28 +15,28 @@
 
 <{{ $HeaderTag }} class="{{ $headerClass }}">
     @if (! $hasRecord)
-        <span class="ls-badge ls-badge--muted">NO DATA</span>
+        <span class="ls-badge ls-badge--muted">{{ __('backup-viewer::messages.badges.no_data') }}</span>
     @elseif ($isHealthy)
-        <span class="ls-badge ls-badge--ok">OK</span>
+        <span class="ls-badge ls-badge--ok">{{ __('backup-viewer::messages.badges.ok') }}</span>
     @else
-        <span class="ls-badge ls-badge--warning">WARNING</span>
+        <span class="ls-badge ls-badge--warning">{{ __('backup-viewer::messages.badges.warning') }}</span>
     @endif
 
     <span class="ls-check-group__target">{{ $d['diskName'] }}</span>
 
     <span class="ls-check-group__count">
         @if (! $hasRecord)
-            Awaiting first <code>backup:monitor</code> run
+            {!! __('backup-viewer::messages.per_target.awaiting_monitor_html') !!}
         @elseif ($failed > 0)
-            {{ $failed }} of {{ $total }} checks failing
+            {{ __('backup-viewer::messages.per_target.checks_failing', ['failed' => $failed, 'total' => $total]) }}
         @elseif ($skipped > 0)
-            {{ $passed }} of {{ $total }} checks passed, {{ $skipped }} skipped
+            {{ __('backup-viewer::messages.per_target.checks_partial', ['passed' => $passed, 'total' => $total, 'skipped' => $skipped]) }}
         @else
-            {{ $passed }} of {{ $total }} checks passed
+            {{ __('backup-viewer::messages.per_target.checks_passed', ['passed' => $passed, 'total' => $total]) }}
         @endif
 
         @if ($d['isStale'] ?? false)
-            <span class="ls-badge ls-badge--muted" title="Monitor data is stale">stale</span>
+            <span class="ls-badge ls-badge--muted" title="{{ __('backup-viewer::messages.badges.stale_title') }}">{{ __('backup-viewer::messages.badges.stale') }}</span>
         @endif
     </span>
 
@@ -48,16 +48,16 @@
 @if ($hasRecord)
     <div class="ls-check-group__meta">
         @if (is_int($d['amountOfBackups']))
-            <span><strong>{{ $d['amountOfBackups'] }}</strong> backups</span>
+            <span><strong>{{ $d['amountOfBackups'] }}</strong> {{ __('backup-viewer::messages.per_target.backups_suffix') }}</span>
         @endif
         @if (is_int($d['newestBackupAt']))
-            <span>newest: {{ Format::relativeTime($d['newestBackupAt']) }}</span>
+            <span>{{ __('backup-viewer::messages.per_target.newest_prefix') }} {{ Format::relativeTime($d['newestBackupAt']) }}</span>
         @endif
         @if (is_int($d['usedStorageBytes']))
-            <span>{{ Format::bytes($d['usedStorageBytes']) }} stored</span>
+            <span>{{ Format::bytes($d['usedStorageBytes']) }} {{ __('backup-viewer::messages.per_target.stored_suffix') }}</span>
         @endif
         @if (is_int($d['checkedAt']))
-            <span class="ls-muted">checked {{ Format::relativeTime($d['checkedAt']) }}</span>
+            <span class="ls-muted">{{ __('backup-viewer::messages.per_target.checked_prefix') }} {{ Format::relativeTime($d['checkedAt']) }}</span>
         @endif
     </div>
 @endif

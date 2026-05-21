@@ -199,56 +199,60 @@ class BackupHealthInspector
      */
     private function freeDiskCheck(string $diskName, float $threshold): array
     {
+        $simpleLabel = (string) __('backup-viewer::messages.checks.free_disk_space');
+
         try {
             $disk = Storage::disk($diskName);
         } catch (Throwable) {
-            return ['label' => 'Free disk space', 'status' => 'skipped', 'detail' => null];
+            return ['label' => $simpleLabel, 'status' => 'skipped', 'detail' => null];
         }
 
         if (! $disk instanceof FilesystemAdapter) {
-            return ['label' => 'Free disk space', 'status' => 'skipped', 'detail' => null];
+            return ['label' => $simpleLabel, 'status' => 'skipped', 'detail' => null];
         }
 
         $root = $disk->path('');
         if (! is_string($root) || ! is_dir($root)) {
-            return ['label' => 'Free disk space', 'status' => 'skipped', 'detail' => null];
+            return ['label' => $simpleLabel, 'status' => 'skipped', 'detail' => null];
         }
 
         $total = @disk_total_space($root);
         $free = @disk_free_space($root);
         if (! is_numeric($total) || ! is_numeric($free) || $total <= 0) {
-            return ['label' => 'Free disk space', 'status' => 'skipped', 'detail' => null];
+            return ['label' => $simpleLabel, 'status' => 'skipped', 'detail' => null];
         }
 
         $ratio = (float) $free / (float) $total;
         $percent = number_format($ratio * 100, 1).'%';
         $thresholdPct = number_format($threshold * 100, 0).'%';
 
+        $label = (string) __('backup-viewer::messages.checks.free_disk_space_above', ['threshold' => $thresholdPct]);
+
         if ($ratio < $threshold) {
             return [
-                'label' => 'Free disk space above '.$thresholdPct,
+                'label' => $label,
                 'status' => 'failure',
-                'detail' => 'Only '.$percent.' free',
+                'detail' => (string) __('backup-viewer::messages.checks.only_x_free', ['percent' => $percent]),
             ];
         }
 
         return [
-            'label' => 'Free disk space above '.$thresholdPct,
+            'label' => $label,
             'status' => 'ok',
-            'detail' => $percent.' free',
+            'detail' => (string) __('backup-viewer::messages.checks.x_free', ['percent' => $percent]),
         ];
     }
 
     private function labelFor(string $class, ?int $arg): string
     {
         return match ($class) {
-            IsReachable::class => 'Target is reachable',
+            IsReachable::class => (string) __('backup-viewer::messages.checks.target_reachable'),
             MaximumAgeInDays::class => $arg !== null
-                ? 'Newest backup within '.$arg.' '.Str::plural('day', $arg)
-                : 'Newest backup within configured age',
+                ? (string) trans_choice('backup-viewer::messages.checks.newest_within_days', $arg, ['count' => $arg])
+                : (string) __('backup-viewer::messages.checks.newest_within_configured_age'),
             MaximumStorageInMegabytes::class => $arg !== null
-                ? 'Total backups under '.$arg.' MB'
-                : 'Total backups under configured size',
+                ? (string) __('backup-viewer::messages.checks.total_under_mb', ['mb' => $arg])
+                : (string) __('backup-viewer::messages.checks.total_under_configured'),
             default => Str::title(class_basename($class)),
         };
     }

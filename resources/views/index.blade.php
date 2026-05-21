@@ -19,17 +19,8 @@
         </div>
 
         <footer class="ls-page__footer">
-            <p>
-                This page is a read-only view of the
-                <a href="https://github.com/spatie/laravel-backup" target="_blank" rel="noopener">spatie/laravel-backup</a>
-                package's state &mdash; every backup, retention rule and notification setting
-                shown here is driven by that package.
-            </p>
-            <p>
-                To change anything &mdash; targets, schedule, encryption password, monitor
-                thresholds, notifications &mdash; edit <code>config/backup.php</code> in your
-                application. This page reflects those values on the next request.
-            </p>
+            <p>{!! __('backup-viewer::messages.footer.intro_html') !!}</p>
+            <p>{!! __('backup-viewer::messages.footer.config_html') !!}</p>
         </footer>
     @endunless
 @endsection
