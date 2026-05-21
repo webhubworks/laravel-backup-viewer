@@ -24,8 +24,6 @@
                 'title' => __('backup-viewer::messages.per_target.no_data_title'),
                 'body' => __('backup-viewer::messages.per_target.no_data_body_html'),
             ])
-        @elseif (count($destinations) === 1)
-            @include('backup-viewer::_partials.target-section', ['d' => $destinations[0], 'flat' => true])
         @else
             <div class="ls-checks">
                 @foreach ($destinations as $d)

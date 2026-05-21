@@ -4,17 +4,32 @@
     @unless ($hasBackupPackage)
         @include('backup-viewer::cards.missing-package')
     @else
-        <div class="ls-grid">
-            @include('backup-viewer::cards.backup-health', ['health' => $health, 'schedule' => $schedule])
+        <div class="ls-stack">
+            @include('backup-viewer::cards.hero', ['health' => $health, 'schedule' => $schedule])
+
+            @include('backup-viewer::cards.metrics', [
+                'health' => $health,
+                'schedule' => $schedule,
+                'byTarget' => $byTarget,
+                'lowDiskSpaceThreshold' => $lowDiskSpaceThreshold,
+            ])
+
             @include('backup-viewer::cards.per-target-checks', ['health' => $health])
+
             @include('backup-viewer::cards.backups-by-target', [
                 'byTarget' => $byTarget,
                 'downloadMaxBytes' => $downloadMaxBytes,
                 'lowDiskSpaceThreshold' => $lowDiskSpaceThreshold,
                 'downloadRouteName' => $downloadRouteName,
             ])
+
             @include('backup-viewer::cards.notifications', [
                 'events' => $notificationEvents,
+            ])
+
+            @include('backup-viewer::cards.diagnostics', [
+                'health' => $health,
+                'schedule' => $schedule,
             ])
         </div>
 

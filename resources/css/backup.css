@@ -44,12 +44,213 @@
   }
 
   /*
-   * Tag a card with .ls-card--full to make it span the whole grid row on
-   * wide screens (e.g. the file table — narrow side-by-side columns would
-   * be too cramped for filenames + downloads).
+   * The new layout stacks everything in a single column so the hero
+   * banner reads first and the table doesn't fight a sibling card for
+   * width. Cards no longer need .ls-card--full but we keep it as a
+   * no-op for backwards compatibility.
    */
+  .ls-stack {
+    @apply mx-auto flex max-w-6xl flex-col gap-4;
+  }
+
   .ls-card--full {
-    @apply lg:col-span-2;
+    /* no-op now that the layout is single-column */
+  }
+
+  /* Hero (status banner at top of page) ------------------------------ */
+
+  .ls-hero {
+    @apply flex items-start gap-5 rounded-xl border px-6 py-5 shadow-sm;
+  }
+
+  .ls-hero__icon {
+    @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-full;
+  }
+
+  .ls-hero__icon svg {
+    @apply h-7 w-7;
+  }
+
+  .ls-hero__body {
+    @apply min-w-0 flex-1;
+  }
+
+  .ls-hero__heading {
+    @apply m-0 text-xl font-semibold leading-tight;
+  }
+
+  .ls-hero__summary {
+    @apply mt-1 text-sm leading-relaxed;
+  }
+
+  .ls-hero__separator {
+    @apply mx-1 select-none text-slate-300;
+  }
+
+  .ls-hero__detail {
+    @apply mt-3 rounded-md bg-white/60 px-3 py-2 text-sm;
+  }
+
+  .ls-hero__hint {
+    @apply mt-3 text-xs leading-relaxed text-slate-500;
+  }
+
+  .ls-hero__hint code {
+    @apply rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[0.7rem] text-slate-600;
+  }
+
+  .ls-hero--ok {
+    @apply border-emerald-200 bg-emerald-50 text-emerald-900;
+  }
+  .ls-hero--ok .ls-hero__icon {
+    @apply bg-emerald-100 text-emerald-700;
+  }
+  .ls-hero--ok .ls-hero__summary { @apply text-emerald-900/80; }
+
+  .ls-hero--warning {
+    @apply border-amber-200 bg-amber-50 text-amber-900;
+  }
+  .ls-hero--warning .ls-hero__icon {
+    @apply bg-amber-100 text-amber-700;
+  }
+  .ls-hero--warning .ls-hero__summary { @apply text-amber-900/80; }
+
+  .ls-hero--error {
+    @apply border-rose-200 bg-rose-50 text-rose-900;
+  }
+  .ls-hero--error .ls-hero__icon {
+    @apply bg-rose-100 text-rose-700;
+  }
+  .ls-hero--error .ls-hero__summary { @apply text-rose-900/80; }
+  .ls-hero--error .ls-hero__detail {
+    @apply bg-rose-100/60 text-rose-900;
+  }
+
+  .ls-hero--idle {
+    @apply border-slate-200 bg-white text-slate-900;
+  }
+  .ls-hero--idle .ls-hero__icon {
+    @apply bg-slate-100 text-slate-500;
+  }
+  .ls-hero--idle .ls-hero__summary { @apply text-slate-600; }
+
+  /* Metric tile strip ------------------------------------------------- */
+
+  .ls-metrics {
+    @apply grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4;
+  }
+
+  .ls-metric {
+    @apply rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm;
+  }
+
+  .ls-metric--alert {
+    @apply border-rose-200 bg-rose-50;
+  }
+
+  .ls-metric__label {
+    @apply text-xs font-medium uppercase tracking-wide text-slate-500;
+  }
+
+  .ls-metric__value {
+    @apply mt-1 text-lg font-medium leading-tight text-slate-900;
+  }
+
+  .ls-metric__value .ls-time {
+    @apply text-lg font-medium;
+  }
+
+  .ls-metric__footnote {
+    @apply mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500;
+  }
+
+  .ls-badge--sm {
+    @apply px-1.5 py-0;
+  }
+
+  /* Card-as-summary (collapsible card header for notifications) ------ */
+
+  .ls-card--collapsible {
+    @apply overflow-hidden;
+  }
+
+  .ls-card__header--summary {
+    @apply cursor-pointer select-none;
+    list-style: none;
+  }
+
+  .ls-card__header--summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .ls-card__header-meta {
+    @apply flex items-center gap-3 text-xs text-slate-500;
+  }
+
+  .ls-card__chevron {
+    @apply inline-block transition-transform;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid var(--color-slate-400);
+  }
+
+  .ls-card--collapsible[open] .ls-card__chevron,
+  .ls-diagnostics[open] .ls-card__chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Notifications (inside the collapsible card) ---------------------- */
+
+  .ls-notifications {
+    @apply flex flex-col divide-y divide-slate-100;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .ls-notifications__row {
+    @apply grid items-start gap-x-6 gap-y-2 py-3 first:pt-0 last:pb-0 sm:grid-cols-[1fr_auto];
+  }
+
+  .ls-notifications__event {
+    @apply min-w-0;
+  }
+
+  .ls-notifications__label {
+    @apply text-sm font-medium text-slate-900;
+  }
+
+  .ls-notifications__class {
+    @apply mt-0.5 break-all text-[0.7rem] text-slate-400;
+  }
+
+  /* Diagnostics (footer-style collapsed block) ----------------------- */
+
+  .ls-diagnostics {
+    @apply mt-4 rounded-md border border-dashed border-slate-200 bg-slate-50/50 px-5 py-3;
+  }
+
+  .ls-diagnostics__summary {
+    @apply flex cursor-pointer select-none items-center justify-between text-xs font-medium uppercase tracking-wide text-slate-500;
+    list-style: none;
+  }
+
+  .ls-diagnostics__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .ls-diagnostics__rows {
+    @apply mt-3 grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 text-sm;
+  }
+
+  .ls-diagnostics__rows dt {
+    @apply font-medium text-slate-600;
+  }
+
+  .ls-diagnostics__rows dd {
+    @apply text-slate-900;
   }
 
   /* Card -------------------------------------------------------------- */

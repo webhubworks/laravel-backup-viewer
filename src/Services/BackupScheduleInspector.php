@@ -21,7 +21,7 @@ class BackupScheduleInspector
     private const TRACKED_COMMANDS = ['backup:run', 'backup:monitor'];
 
     /**
-     * @return array<int, array{command: string, fullCommand: string, cron: string, human: string, timezone: ?string}>
+     * @return array<int, array{command: string, fullCommand: string, cron: string, human: string, timezone: ?string, nextRunAt: ?int}>
      */
     public function find(): array
     {
@@ -52,10 +52,20 @@ class BackupScheduleInspector
                 'timezone' => $event->timezone instanceof \DateTimeZone
                     ? $event->timezone->getName()
                     : (is_string($event->timezone) ? $event->timezone : null),
+                'nextRunAt' => $this->resolveNextRunAt($event),
             ];
         }
 
         return $matches;
+    }
+
+    private function resolveNextRunAt(Event $event): ?int
+    {
+        try {
+            return $event->nextRunDate()->getTimestamp();
+        } catch (Throwable) {
+            return null;
+        }
     }
 
     /**
