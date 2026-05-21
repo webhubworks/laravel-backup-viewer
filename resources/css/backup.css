@@ -168,6 +168,79 @@
     @apply px-1.5 py-0;
   }
 
+  /* Sidebar grid (per-target-checks + action card) ------------------- */
+
+  .ls-sidebar-grid {
+    @apply grid grid-cols-1 items-stretch gap-4 lg:grid-cols-4;
+  }
+
+  .ls-sidebar-grid__main,
+  .ls-sidebar-grid__aside {
+    @apply flex;
+  }
+
+  .ls-sidebar-grid__main {
+    @apply lg:col-span-3;
+  }
+
+  .ls-sidebar-grid__aside {
+    @apply lg:col-span-1;
+  }
+
+  .ls-sidebar-grid__main > .ls-card,
+  .ls-sidebar-grid__aside > .ls-card {
+    @apply flex w-full flex-col;
+  }
+
+  .ls-sidebar-grid__main > .ls-card > .ls-card__body,
+  .ls-sidebar-grid__aside > .ls-card > .ls-card__body {
+    @apply flex-1;
+  }
+
+  /*
+   * When the per-target-checks card is expanded, leave the action card
+   * at its natural height so it doesn't stretch into a tall column of
+   * empty space next to the now-long checks list.
+   */
+  .ls-sidebar-grid:has(.ls-check-group[open]) .ls-sidebar-grid__aside {
+    align-self: start;
+  }
+
+  .ls-sidebar-grid:has(.ls-check-group[open]) .ls-sidebar-grid__aside > .ls-card {
+    @apply h-auto;
+  }
+
+  /* Action card (run-db-backup) -------------------------------------- */
+
+  .ls-action-card__body {
+    @apply flex flex-col items-start justify-center gap-3;
+  }
+
+  .ls-action-card__button {
+    @apply self-start;
+  }
+
+  .ls-action-card__error {
+    @apply text-xs text-rose-700;
+  }
+
+  .ls-action-card__spinner {
+    @apply inline-block h-3.5 w-3.5 rounded-full border-2 border-current border-r-transparent align-middle;
+    animation: ls-spin 0.7s linear infinite;
+  }
+
+  @keyframes ls-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .ls-btn--primary {
+    @apply border-slate-900 bg-slate-900 text-white shadow-sm hover:bg-slate-800 hover:text-white focus:ring-slate-700;
+  }
+
+  .ls-btn--primary[disabled] {
+    @apply cursor-wait bg-slate-700 text-white opacity-90 hover:bg-slate-700;
+  }
+
   /* Card-as-summary (collapsible card header for notifications) ------ */
 
   .ls-card--collapsible {

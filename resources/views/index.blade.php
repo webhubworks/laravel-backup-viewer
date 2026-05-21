@@ -14,7 +14,17 @@
                 'lowDiskSpaceThreshold' => $lowDiskSpaceThreshold,
             ])
 
-            @include('backup-viewer::cards.per-target-checks', ['health' => $health])
+            <div class="ls-sidebar-grid">
+                <div class="ls-sidebar-grid__main">
+                    @include('backup-viewer::cards.per-target-checks', ['health' => $health])
+                </div>
+                <div class="ls-sidebar-grid__aside">
+                    @include('backup-viewer::cards.db-backup', [
+                        'byTarget' => $byTarget,
+                        'runDbRouteName' => $runDbRouteName,
+                    ])
+                </div>
+            </div>
 
             @include('backup-viewer::cards.backups-by-target', [
                 'byTarget' => $byTarget,

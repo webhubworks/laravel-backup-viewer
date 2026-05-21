@@ -11,6 +11,18 @@ return [
 
     'middleware' => ['web'],
 
+    'actions' => [
+        'run_db_backup' => [
+            /*
+             * Show a card on the index page that runs `backup:run --only-db`
+             * synchronously and streams the resulting .zip back as a
+             * download. Set to false to hide the card and refuse the
+             * underlying POST endpoint.
+             */
+            'enabled' => true,
+        ],
+    ],
+
     'download' => [
         /*
          * Maximum size (in bytes) for a backup file to be downloadable through

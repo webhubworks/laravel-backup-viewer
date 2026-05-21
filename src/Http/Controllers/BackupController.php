@@ -33,6 +33,7 @@ class BackupController
             'downloadMaxBytes' => config('backup-viewer.download.max_bytes'),
             'lowDiskSpaceThreshold' => (float) config('backup-viewer.low_disk_space_threshold', 0.15),
             'downloadRouteName' => config('backup-viewer.route.name', 'backup-viewer.index').'.download',
+            'runDbRouteName' => config('backup-viewer.route.name', 'backup-viewer.index').'.run-db',
             'faviconHtml' => $this->resolveFaviconHtml(),
             'faviconPath' => $this->resolveFaviconPath(),
         ]);

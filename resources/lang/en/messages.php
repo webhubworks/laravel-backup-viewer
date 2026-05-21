@@ -42,6 +42,13 @@ return [
     'diagnostics' => [
         'title' => 'Schedules & diagnostics',
     ],
+    'db_backup' => [
+        'title' => 'DB backup',
+        'cta' => 'Create DB backup',
+        'running' => 'Running…',
+        'done' => 'Done',
+        'retry' => 'Try again',
+    ],
     'health' => [
         'title' => 'Backup health',
         'monitoring_not_configured_title' => 'Monitoring is not configured',
