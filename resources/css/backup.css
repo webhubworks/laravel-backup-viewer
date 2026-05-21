@@ -213,7 +213,7 @@
   /* Action card (run-db-backup) -------------------------------------- */
 
   .ls-action-card__body {
-    @apply flex flex-col items-start justify-center gap-3;
+    @apply flex flex-col items-start justify-start gap-3;
   }
 
   .ls-action-card__button {
