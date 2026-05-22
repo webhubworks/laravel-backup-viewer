@@ -240,7 +240,7 @@
   }
 
   .ls-action-card__output {
-    @apply w-full max-h-64 overflow-auto rounded-md bg-slate-900 px-3 py-2 text-xs leading-relaxed text-slate-200;
+    @apply w-full max-h-64 overflow-auto rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs leading-relaxed text-slate-700;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     white-space: pre-wrap;
     word-break: break-word;
@@ -260,7 +260,7 @@
   }
 
   .ls-btn--primary[disabled] {
-    @apply cursor-wait bg-slate-700 text-white opacity-90 hover:bg-slate-700;
+    @apply cursor-wait border-slate-200 bg-slate-100 text-slate-600 opacity-100 shadow-none hover:border-slate-200 hover:bg-slate-100 hover:text-slate-600;
   }
 
   /* Card-as-summary (collapsible card header for notifications) ------ */
