@@ -210,6 +210,21 @@
     @apply h-auto;
   }
 
+  /*
+   * While the DB-backup action is running (or just finished), hide the
+   * per-target-checks card and let the action card take the full grid width
+   * so the streamed output has room to breathe.
+   */
+  .ls-sidebar-grid:has(.ls-action-card[data-state="running"]) .ls-sidebar-grid__main,
+  .ls-sidebar-grid:has(.ls-action-card[data-state="done"]) .ls-sidebar-grid__main {
+    @apply hidden;
+  }
+
+  .ls-sidebar-grid:has(.ls-action-card[data-state="running"]) .ls-sidebar-grid__aside,
+  .ls-sidebar-grid:has(.ls-action-card[data-state="done"]) .ls-sidebar-grid__aside {
+    @apply lg:col-span-4;
+  }
+
   /* Action card (run-db-backup) -------------------------------------- */
 
   .ls-action-card__body {
@@ -222,6 +237,13 @@
 
   .ls-action-card__error {
     @apply text-xs text-rose-700;
+  }
+
+  .ls-action-card__output {
+    @apply w-full max-h-64 overflow-auto rounded-md bg-slate-900 px-3 py-2 text-xs leading-relaxed text-slate-200;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
   }
 
   .ls-action-card__spinner {

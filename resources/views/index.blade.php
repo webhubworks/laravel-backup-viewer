@@ -22,6 +22,7 @@
                     @include('backup-viewer::cards.db-backup', [
                         'byTarget' => $byTarget,
                         'runDbRouteName' => $runDbRouteName,
+                        'downloadRouteName' => $downloadRouteName,
                     ])
                 </div>
             </div>

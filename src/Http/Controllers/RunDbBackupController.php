@@ -3,74 +3,103 @@
 namespace Webhub\BackupViewer\Http\Controllers;
 
 use Illuminate\Filesystem\FilesystemAdapter;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\Console\Output\Output;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Throwable;
 
 class RunDbBackupController
 {
     /**
-     * Run a database-only backup synchronously and stream the newly created
-     * file back as a download. Designed to be called from the action card via
-     * a fetch() request that consumes the binary response.
+     * Run a database-only backup and stream the console output back to the
+     * browser line-by-line via `response()->stream()`. The very last line of
+     * the body is a structured trailer the client uses to either trigger the
+     * subsequent download request or surface a failure:
+     *
+     *   __EOF__ exit=0 target=<disk> file=<name.zip>
+     *   __EOF__ exit=<code>
      */
-    public function __invoke(): BinaryFileResponse|JsonResponse
+    public function __invoke(): StreamedResponse
     {
         if (! (bool) config('backup-viewer.actions.run_db_backup.enabled', true)) {
             throw new BadRequestHttpException('DB backup action is disabled.');
         }
 
-        @set_time_limit(0);
-        ignore_user_abort(true);
+        return response()->stream(function () {
+            @set_time_limit(0);
+            ignore_user_abort(true);
 
-        $startedAt = time() - 1;
+            while (ob_get_level() > 0) {
+                ob_end_flush();
+            }
 
-        try {
-            $exitCode = Artisan::call('backup:run', [
-                '--only-db' => true,
-                '--disable-notifications' => true,
-            ]);
-        } catch (Throwable $e) {
-            return new JsonResponse([
-                'message' => $e->getMessage(),
-            ], 422);
-        }
+            $flush = static function (string $message, bool $newline): void {
+                echo $message.($newline ? "\n" : '');
+                @ob_flush();
+                @flush();
+            };
 
-        $output = trim((string) Artisan::output());
+            $output = new class($flush) extends Output {
+                /** @var callable */
+                private $flush;
 
-        if ($exitCode !== 0) {
-            return new JsonResponse([
-                'message' => $output !== '' ? $this->lastLine($output) : 'Backup failed.',
-                'output' => $output,
-            ], 422);
-        }
+                public function __construct(callable $flush)
+                {
+                    parent::__construct();
+                    $this->flush = $flush;
+                }
 
-        $backup = $this->findNewestBackupSince($startedAt);
+                protected function doWrite(string $message, bool $newline): void
+                {
+                    ($this->flush)($message, $newline);
+                }
+            };
 
-        if ($backup === null) {
-            return new JsonResponse([
-                'message' => 'Backup ran, but no resulting file could be located on a local destination.',
-                'output' => $output,
-            ], 422);
-        }
+            $startedAt = time() - 1;
 
-        return response()
-            ->download($backup['path'], $backup['name'], [
-                'Content-Type' => 'application/zip',
-                'X-Backup-Filename' => $backup['name'],
-            ])
-            ->deleteFileAfterSend(false);
+            try {
+                $exitCode = Artisan::call('backup:run', [
+                    '--only-db' => true,
+                    '--disable-notifications' => true,
+                ], $output);
+            } catch (Throwable $e) {
+                $flush('', true);
+                $flush($e->getMessage(), true);
+                $flush('__EOF__ exit=1', true);
+
+                return;
+            }
+
+            if ($exitCode !== 0) {
+                $flush('__EOF__ exit='.$exitCode, true);
+
+                return;
+            }
+
+            $backup = $this->findNewestBackupSince($startedAt);
+
+            if ($backup === null) {
+                $flush('__EOF__ exit=0', true);
+
+                return;
+            }
+
+            $flush(sprintf('__EOF__ exit=0 target=%s file=%s', $backup['target'], $backup['name']), true);
+        }, 200, [
+            'Content-Type' => 'text/plain; charset=utf-8',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'X-Accel-Buffering' => 'no',
+        ]);
     }
 
     /**
      * Walk configured local destinations and return the newest .zip whose
-     * mtime is at or after the request start. Falls back to null when none
-     * is found (e.g. only remote destinations are configured).
+     * mtime is at or after the request start, along with the disk name it
+     * was found on. Falls back to null when none is found.
      *
-     * @return array{path: string, name: string}|null
+     * @return array{target: string, name: string}|null
      */
     private function findNewestBackupSince(int $startedAt): ?array
     {
@@ -121,7 +150,7 @@ class RunDbBackupController
                 }
 
                 $candidates[] = [
-                    'path' => $real,
+                    'target' => $diskName,
                     'name' => $name,
                     'mtime' => $mtime,
                 ];
@@ -135,16 +164,8 @@ class RunDbBackupController
         usort($candidates, static fn (array $a, array $b): int => $b['mtime'] <=> $a['mtime']);
 
         return [
-            'path' => $candidates[0]['path'],
+            'target' => $candidates[0]['target'],
             'name' => $candidates[0]['name'],
         ];
-    }
-
-    private function lastLine(string $output): string
-    {
-        $lines = preg_split('/\R/', trim($output)) ?: [];
-        $lines = array_values(array_filter($lines, static fn ($l) => trim($l) !== ''));
-
-        return $lines === [] ? $output : (string) end($lines);
     }
 }

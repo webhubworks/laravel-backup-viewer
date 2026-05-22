@@ -10,7 +10,8 @@
 @if ($shouldShow)
     <div
         class="ls-card ls-action-card"
-        x-data="lsDbBackup(@js(route($runDbRouteName)))"
+        x-data="lsDbBackup(@js(route($runDbRouteName)), @js(route($downloadRouteName)))"
+        :data-state="state"
     >
         <div class="ls-card__header">
             <h2 class="ls-card__title">{{ __('backup-viewer::messages.db_backup.title') }}</h2>
@@ -35,6 +36,14 @@
                 <span x-show="state === 'done'" x-cloak>{{ __('backup-viewer::messages.db_backup.done') }}</span>
                 <span x-show="state === 'error'" x-cloak>{{ __('backup-viewer::messages.db_backup.retry') }}</span>
             </button>
+
+            <pre
+                class="ls-action-card__output"
+                x-show="output !== ''"
+                x-ref="output"
+                x-text="output"
+                x-cloak
+            ></pre>
 
             <p class="ls-action-card__error" x-show="state === 'error'" x-text="errorMessage" x-cloak></p>
         </div>
