@@ -59,6 +59,9 @@ class RunDbBackupController
 
             $startedAt = time() - 1;
 
+            $flush('Running artisan backup:run --only-db...', true);
+            $flush('', true);
+
             try {
                 $exitCode = Artisan::call('backup:run', [
                     '--only-db' => true,
@@ -86,6 +89,8 @@ class RunDbBackupController
                 return;
             }
 
+            $flush('', true);
+            $flush('Downloading the db dump, hold tight...', true);
             $flush(sprintf('__EOF__ exit=0 target=%s file=%s', $backup['target'], $backup['name']), true);
         }, 200, [
             'Content-Type' => 'text/plain; charset=utf-8',
