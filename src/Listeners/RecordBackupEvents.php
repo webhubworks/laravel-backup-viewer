@@ -17,8 +17,14 @@ use Webhub\BackupViewer\Services\BackupStateStore;
  * touching the backup disks itself.
  *
  * `backup:run` typically fires BackupWasSuccessful once per configured
- * destination disk; each event independently updates the state — latest
+ * destination disk; each event independently updates the state - latest
  * event wins, which is fine for the TLDR shown on the page.
+ *
+ * spatie/laravel-backup changed its event payloads between v9 and v10. v10
+ * carries diskName/backupName as plain string properties (and unhealthy
+ * failures as a Collection); v9 carries a BackupDestination, or a
+ * BackupDestinationStatus wrapping one. We support both since the package
+ * declares "^9.0 || ^10.0".
  */
 class RecordBackupEvents
 {
@@ -34,42 +40,84 @@ class RecordBackupEvents
 
     public function onBackupSuccess(BackupWasSuccessful $event): void
     {
-        $this->store->recordBackupSuccess($event->diskName, $event->backupName);
+        [$diskName, $backupName] = $this->resolveNames($event);
+
+        $this->store->recordBackupSuccess($diskName, $backupName);
     }
 
     public function onBackupFailure(BackupHasFailed $event): void
     {
-        $this->store->recordBackupFailure(
-            $event->diskName,
-            $event->backupName,
-            $event->exception->getMessage(),
-        );
+        [$diskName, $backupName] = $this->resolveNames($event);
+
+        $this->store->recordBackupFailure($diskName, $backupName, $event->exception->getMessage());
     }
 
     public function onHealthyDestination(HealthyBackupWasFound $event): void
     {
+        [$diskName, $backupName] = $this->resolveNames($event);
+
         $this->store->recordMonitorResult(
-            $event->diskName,
-            $event->backupName,
-            array_merge(['isHealthy' => true, 'failures' => []], $this->stats($event->diskName, $event->backupName)),
+            $diskName,
+            $backupName,
+            array_merge(['isHealthy' => true, 'failures' => []], $this->stats($diskName, $backupName)),
         );
     }
 
     public function onUnhealthyDestination(UnhealthyBackupWasFound $event): void
     {
-        $failures = $event->failureMessages
-            ->map(static fn ($entry): array => [
-                'check' => (string) ($entry['check'] ?? ''),
-                'message' => (string) ($entry['message'] ?? ''),
-            ])
-            ->values()
-            ->all();
+        [$diskName, $backupName] = $this->resolveNames($event);
+        $failures = $this->resolveFailures($event);
 
         $this->store->recordMonitorResult(
-            $event->diskName,
-            $event->backupName,
-            array_merge(['isHealthy' => false, 'failures' => $failures], $this->stats($event->diskName, $event->backupName)),
+            $diskName,
+            $backupName,
+            array_merge(['isHealthy' => false, 'failures' => $failures], $this->stats($diskName, $backupName)),
         );
+    }
+
+    /**
+     * @return array{0: ?string, 1: ?string}
+     */
+    private function resolveNames(object $event): array
+    {
+        if (property_exists($event, 'diskName')) {
+            return [$event->diskName, $event->backupName];
+        }
+
+        $destination = match (true) {
+            property_exists($event, 'backupDestination') => $event->backupDestination,
+            property_exists($event, 'backupDestinationStatus') => $event->backupDestinationStatus->backupDestination(),
+            default => null,
+        };
+
+        return [$destination?->diskName(), $destination?->backupName()];
+    }
+
+    /**
+     * @return array<int, array{check: string, message: string}>
+     */
+    private function resolveFailures(UnhealthyBackupWasFound $event): array
+    {
+        if (property_exists($event, 'failureMessages')) {
+            return $event->failureMessages
+                ->map(static fn ($entry): array => [
+                    'check' => (string) ($entry['check'] ?? ''),
+                    'message' => (string) ($entry['message'] ?? ''),
+                ])
+                ->values()
+                ->all();
+        }
+
+        $failure = $event->backupDestinationStatus->getHealthCheckFailure();
+
+        if ($failure === null) {
+            return [];
+        }
+
+        return [[
+            'check' => $failure->healthCheck()->name(),
+            'message' => $failure->exception()->getMessage(),
+        ]];
     }
 
     /**
